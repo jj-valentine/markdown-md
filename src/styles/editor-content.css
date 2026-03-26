@@ -159,3 +159,101 @@
   border-radius: var(--radius-md);
   margin: 1em 0;
 }
+
+/* Highlight */
+.tiptap mark {
+  background: rgba(255, 185, 100, 0.25);
+  border-radius: 2px;
+  padding: 0 2px;
+}
+
+/* Task lists */
+.tiptap ul[data-type="taskList"] {
+  list-style: none;
+  padding-left: 0;
+}
+
+.tiptap ul[data-type="taskList"] li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin: 0.3em 0;
+}
+
+.tiptap ul[data-type="taskList"] li label {
+  display: flex;
+  align-items: center;
+  margin-top: 0.15em;
+}
+
+.tiptap ul[data-type="taskList"] li label input[type="checkbox"] {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--outline);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+}
+
+.tiptap ul[data-type="taskList"] li label input[type="checkbox"]:checked {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.tiptap ul[data-type="taskList"] li label input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 5px;
+  height: 9px;
+  border: solid var(--surface);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.tiptap ul[data-type="taskList"] li[data-checked="true"] > div > p {
+  text-decoration: line-through;
+  color: var(--on-surface-variant);
+}
+
+/* Tables */
+.tiptap table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1em 0;
+}
+
+.tiptap th,
+.tiptap td {
+  border: 1px solid var(--outline-variant);
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+  vertical-align: top;
+}
+
+.tiptap th {
+  background: var(--surface-container);
+  font-weight: var(--font-weight-medium);
+  color: var(--on-surface);
+}
+
+.tiptap td {
+  color: var(--on-surface);
+}
+
+/* Code block with lowlight syntax highlighting */
+.tiptap pre code .hljs-keyword { color: var(--accent); }
+.tiptap pre code .hljs-string { color: #aafba1; }
+.tiptap pre code .hljs-function { color: var(--info); }
+.tiptap pre code .hljs-number { color: var(--warning); }
+.tiptap pre code .hljs-comment { color: #535353; }
+.tiptap pre code .hljs-type { color: #87cefa; }
+.tiptap pre code .hljs-tag { color: var(--error); }
+.tiptap pre code .hljs-attr { color: var(--tertiary); }
+.tiptap pre code .hljs-built_in { color: var(--info); }
+.tiptap pre code .hljs-literal { color: var(--warning); }
+.tiptap pre code .hljs-params { color: var(--on-surface); }
+.tiptap pre code .hljs-title { color: var(--info); }
