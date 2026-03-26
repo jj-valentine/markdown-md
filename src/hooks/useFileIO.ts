@@ -29,7 +29,7 @@ export function useFileIO(getContent: () => string, setContent: (content: string
       if (!result || 'error' in result) return
 
       setContent(result.content)
-      const name = result.filePath.split('/').pop() || result.filePath
+      const name = result.filePath.split(/[/\\]/).pop() || result.filePath
       setFileState({
         filePath: result.filePath,
         fileName: name,
@@ -44,16 +44,12 @@ export function useFileIO(getContent: () => string, setContent: (content: string
   const save = useCallback(async () => {
     try {
       const content = getContent()
-      if (!content && filePathRef.current) {
-        console.warn('[file:save] refusing to overwrite file with empty content')
-        return
-      }
       const path = filePathRef.current
 
       if (!path) {
         const result = await fileIO.saveAs(content)
         if (!result || 'error' in result) return
-        const name = result.filePath.split('/').pop() || result.filePath
+        const name = result.filePath.split(/[/\\]/).pop() || result.filePath
         setFileState(prev => ({
           ...prev,
           filePath: result.filePath,
@@ -81,7 +77,7 @@ export function useFileIO(getContent: () => string, setContent: (content: string
       const result = await fileIO.saveAs(content)
       if (!result || 'error' in result) return
 
-      const name = result.filePath.split('/').pop() || result.filePath
+      const name = result.filePath.split(/[/\\]/).pop() || result.filePath
       setFileState(prev => ({
         ...prev,
         filePath: result.filePath,

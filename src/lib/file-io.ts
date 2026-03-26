@@ -2,15 +2,15 @@ const isElectron = () => typeof window !== 'undefined' && !!window.api
 
 // --- Electron backend ---
 
-async function electronOpen(): Promise<{ filePath: string; content: string } | null> {
+async function electronOpen(): Promise<{ filePath: string; content: string } | { error: string } | null> {
   return window.api!.openFile()
 }
 
-async function electronSave(filePath: string, content: string): Promise<{ filePath: string }> {
+async function electronSave(filePath: string, content: string): Promise<{ filePath: string } | { error: string }> {
   return window.api!.saveFile(filePath, content)
 }
 
-async function electronSaveAs(content: string): Promise<{ filePath: string } | null> {
+async function electronSaveAs(content: string): Promise<{ filePath: string } | { error: string } | null> {
   return window.api!.saveFileAs(content)
 }
 

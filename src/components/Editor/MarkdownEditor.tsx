@@ -34,16 +34,23 @@ export default function MarkdownEditor() {
   }, [file.lastSaved])
 
   // Restore from autosave — deferred until editor ref is available
-  const [restored, setRestored] = useState(false)
+  const [editorReady, setEditorReady] = useState(false)
   useEffect(() => {
-    if (restored || !editorRef.current) return
-    const saved = getAutosave()
-    if (saved) {
-      setContent(saved.content)
-      store.setDirty(true)
-    }
-    setRestored(true)
-  })
+    if (editorReady) return
+    // Poll briefly for the editor ref (Tiptap inits async)
+    const id = setInterval(() => {
+      if (editorRef.current) {
+        clearInterval(id)
+        setEditorReady(true)
+        const saved = getAutosave()
+        if (saved) {
+          editorRef.current.setMarkdown(saved.content)
+          store.setDirty(true)
+        }
+      }
+    }, 50)
+    return () => clearInterval(id)
+  }, [editorReady])
 
   // Clear autosave on explicit save
   useEffect(() => {

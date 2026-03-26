@@ -7,10 +7,14 @@ interface SaveResult {
   filePath: string
 }
 
+interface IpcError {
+  error: string
+}
+
 interface ElectronApi {
-  openFile: () => Promise<FileResult | null>
-  saveFile: (filePath: string, content: string) => Promise<SaveResult>
-  saveFileAs: (content: string) => Promise<SaveResult | null>
+  openFile: () => Promise<FileResult | IpcError | null>
+  saveFile: (filePath: string, content: string) => Promise<SaveResult | IpcError>
+  saveFileAs: (content: string) => Promise<SaveResult | IpcError | null>
   onMenuOpen: (callback: () => void) => () => void
   onMenuSave: (callback: () => void) => () => void
   onMenuSaveAs: (callback: () => void) => () => void
