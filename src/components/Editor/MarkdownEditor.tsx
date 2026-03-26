@@ -52,6 +52,11 @@ export default function MarkdownEditor() {
     return () => clearInterval(id)
   }, [editorReady])
 
+  // Clear autosave when a file is explicitly opened (prevents stale restore on relaunch)
+  useEffect(() => {
+    if (file.filePath) clearAutosave()
+  }, [file.filePath])
+
   // Clear autosave on explicit save
   useEffect(() => {
     if (file.lastSaved) clearAutosave()

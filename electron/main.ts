@@ -1,7 +1,11 @@
-import { app, BrowserWindow, dialog, Menu, shell } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, Menu, shell } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { registerFileHandlers } from './ipc-handlers'
+
+// Track close-guard state across windows
+const pendingDirtyQuery = new Set<number>()
+const pendingClose = new Set<number>()
 
 function createWindow(): BrowserWindow {
   const win = new BrowserWindow({
@@ -33,8 +37,14 @@ function createWindow(): BrowserWindow {
   })
 
   // Prompt before closing with unsaved changes
+  // Second close attempt while renderer is unresponsive forces close
   win.on('close', (e) => {
+    if (pendingDirtyQuery.has(win.id)) {
+      pendingDirtyQuery.delete(win.id)
+      return
+    }
     e.preventDefault()
+    pendingDirtyQuery.add(win.id)
     win.webContents.send('query:is-dirty')
   })
 
@@ -134,14 +144,10 @@ app.whenReady().then(() => {
   registerFileHandlers()
 
   // Handle dirty-state response from renderer for close guard
-  const { ipcMain } = require('electron')
-
-  // Track windows that are waiting for a save-then-close
-  const pendingClose = new Set<number>()
-
   ipcMain.on('reply:is-dirty', (event: Electron.IpcMainEvent, isDirty: boolean) => {
     const win = BrowserWindow.fromWebContents(event.sender)
     if (!win) return
+    pendingDirtyQuery.delete(win.id)
 
     if (!isDirty) {
       win.destroy()
