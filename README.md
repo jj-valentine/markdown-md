@@ -1,6 +1,7 @@
 <div align="center">
   <h1>markdown-md</h1>
-  <p>A local-first markdown editor that writes to disk, not the cloud.<br/>Desktop app. Dark theme. No account required.</p>
+  <p><em>Mark up your markdown.</em></p>
+  <p>Annotations, highlights, and rich overlays on plain <code>.md</code> files &mdash;<br/>without breaking the format underneath.</p>
   <p>
     <img src="https://img.shields.io/badge/electron-41-47848f?style=flat-square&logo=electron&logoColor=white" alt="Electron 41"/>
     <img src="https://img.shields.io/badge/react-19-61dafb?style=flat-square&logo=react&logoColor=black" alt="React 19"/>
@@ -11,29 +12,26 @@
 
 ---
 
-> Most markdown editors want you to sign up, sync to their servers, and pay monthly for the privilege of editing a text file. markdown-md saves to your filesystem with Cmd+S. That's it. That's the product.
+> Markdown was designed to strip markup away. markdown-md adds it back &mdash; annotations, highlights, comments, structure &mdash; as a rich layer on top of files that stay plain text on disk. Open them anywhere, mark them up here.
 
 ---
 
 ## How it works
 
 ```
-Cmd+O / Cmd+S / Cmd+W
-        |
-  Electron Main
-  (menus, dialogs, IPC routing)
-        |
-  contextBridge
-  (sandboxed preload)
-        |
-  React Renderer
-  Tiptap editor + Zustand store
-        |
-  Dual Backend
-  Electron: native fs    Web: download/upload
+your-file.md  (plain text, never modified by annotations)
+      |
+  Tiptap / ProseMirror
+  (rich editor, markdown round-trip)
+      |
+  Markup Layer  [coming]
+  (annotations, highlights, comments — stored separately)
+      |
+  Electron + React
+  (native file I/O, dark UI, autosave)
 ```
 
-Your markdown is parsed into a rich editor on open, round-tripped back to `.md` on save. No intermediate format, no proprietary storage. The file on disk is always valid markdown.
+Open a `.md` file. Edit it with a rich editor. Mark it up with annotations that live in a separate overlay — the markdown underneath stays portable and unchanged.
 
 ---
 
@@ -49,36 +47,34 @@ An Electron window opens with a dark-themed editor. Start typing, or open an exi
 
 ---
 
-## Features
+## The idea
 
-**Editor**
-- Rich WYSIWYG editing backed by Tiptap 3 (ProseMirror)
-- Full markdown support: headings, bold, italic, links, images, code blocks, tables, task lists, blockquotes, horizontal rules
-- Syntax highlighting in fenced code blocks via lowlight
-- Heading promote/demote with Cmd+= / Cmd+-
-- Animated heading-level badge on shortcut use
+Markdown is everywhere — docs, notes, READMEs, knowledge bases. But it's deliberately minimal. No annotations. No highlights. No way to layer meaning on top of a document without changing the document itself.
+
+markdown-md is a structured overlay editor. Open any `.md` file, mark it up with annotations, highlights, comments, and structural cues — and the markdown underneath stays untouched. Your `.md` files remain portable, diffable, and readable in any tool. The markup layer lives separately.
+
+Think of it as the difference between writing in a notebook and writing *on* a notebook — sticky notes, margin scribbles, highlighted passages — without altering a single page.
+
+### What's built
+
+The editor foundation is in place. Markup features are coming next.
+
+**Editor core**
+- WYSIWYG editing backed by Tiptap 3 (ProseMirror) with full markdown round-tripping
+- Headings, bold, italic, links, images, code blocks, tables, task lists, blockquotes
+- Syntax highlighting in fenced code blocks (lowlight)
+- Heading promote/demote with Cmd+= / Cmd+- and animated level badge
 
 **File I/O**
-- Cmd+O opens native file dialog (`.md`, `.markdown`, `.mdx`, `.txt`)
-- Cmd+S saves to disk — no browser permission prompts, no cloud
-- Cmd+Shift+S for Save As
-- IPC path allowlist: only files opened or saved via native dialogs can be written
-
-**Persistence**
-- 1-second debounced autosave to localStorage
-- On relaunch, unsaved content is restored automatically
-- Autosave clears when a file is explicitly opened or saved
-
-**Close guard**
-- "You have unsaved changes" dialog on window close
-- Save / Don't Save / Cancel — standard native behavior
-- If save fails during close, error dialog shown and window stays open
-- If renderer crashes, second close attempt forces quit
+- Native file dialogs for open/save/save-as (`.md`, `.markdown`, `.mdx`, `.txt`)
+- IPC path allowlist — only files from native dialogs can be written
+- Autosave to localStorage (1s debounce), restored on relaunch
+- Close guard with save/discard/cancel dialog, error recovery on save failure
 
 **Dual backend**
-- Desktop: Electron IPC + Node `fs` for native file operations
-- Web: falls back to browser download/upload (no Electron dependency)
-- `MarkdownEditor` component has zero Electron imports — embeddable anywhere
+- Desktop: Electron IPC + Node `fs`
+- Web: browser download/upload fallback
+- Editor component has zero Electron imports — embeddable anywhere
 
 ---
 
@@ -230,11 +226,20 @@ This is the integration point for [CEREBRO](https://github.com/jj-valentine/cere
 
 ## Roadmap
 
+**Markup layer** (the point of all this)
+- [ ] Inline annotations — attach notes to any span of text
+- [ ] Highlights with categories (question, important, revisit)
+- [ ] Margin comments — visible alongside content, stored separately
+- [ ] Annotation persistence — overlay data stored alongside `.md` files without modifying them
+
+**Editor**
 - [ ] Toolbar with full formatting controls
 - [ ] Find and replace
 - [ ] File tree sidebar
 - [ ] Tabs for multiple open files
-- [ ] Export to HTML / PDF
+
+**Export & theming**
+- [ ] Export to HTML / PDF (with or without annotations)
 - [ ] Custom themes
 - [ ] Plugin system
 
