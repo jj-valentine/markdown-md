@@ -114,6 +114,11 @@ function buildMenu(): void {
     {
       label: 'Format',
       submenu: [
+        { label: 'Bold', accelerator: 'CmdOrCtrl+B', click: (_item, win) => win?.webContents.send('format:bold') },
+        { label: 'Italic', accelerator: 'CmdOrCtrl+I', click: (_item, win) => win?.webContents.send('format:italic') },
+        { label: 'Strikethrough', accelerator: 'CmdOrCtrl+Shift+X', click: (_item, win) => win?.webContents.send('format:strike') },
+        { label: 'Code', accelerator: 'CmdOrCtrl+E', click: (_item, win) => win?.webContents.send('format:code') },
+        { type: 'separator' },
         { label: 'Promote Heading          ⌘=', enabled: true, click: (_item, win) => win?.webContents.send('format:promote-heading') },
         { label: 'Demote Heading           ⌘-', enabled: true, click: (_item, win) => win?.webContents.send('format:demote-heading') }
       ]

@@ -20,6 +20,10 @@ interface ElectronApi {
   onMenuSaveAs: (callback: () => void) => () => void
   onPromoteHeading: (callback: () => void) => () => void
   onDemoteHeading: (callback: () => void) => () => void
+  onFormatBold: (callback: () => void) => () => void
+  onFormatItalic: (callback: () => void) => () => void
+  onFormatStrike: (callback: () => void) => () => void
+  onFormatCode: (callback: () => void) => () => void
   onQueryDirty: (callback: () => void) => () => void
   replyDirty: (isDirty: boolean) => void
   notifySaveComplete: () => void

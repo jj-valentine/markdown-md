@@ -181,13 +181,17 @@ const TiptapEditor = forwardRef<TiptapEditorHandle, TiptapEditorProps>(
     }, [editor, showBadge])
 
     useEffect(() => {
-      if (!window.api) return
+      if (!window.api || !editor) return
       const cleanups = [
         window.api.onPromoteHeading(promoteHeading),
-        window.api.onDemoteHeading(demoteHeading)
+        window.api.onDemoteHeading(demoteHeading),
+        window.api.onFormatBold(() => editor.chain().focus().toggleBold().run()),
+        window.api.onFormatItalic(() => editor.chain().focus().toggleItalic().run()),
+        window.api.onFormatStrike(() => editor.chain().focus().toggleStrike().run()),
+        window.api.onFormatCode(() => editor.chain().focus().toggleCode().run()),
       ]
       return () => cleanups.forEach(fn => fn())
-    }, [promoteHeading, demoteHeading])
+    }, [promoteHeading, demoteHeading, editor])
 
     useImperativeHandle(ref, () => ({ getMarkdown, setMarkdown, editor }), [getMarkdown, setMarkdown, editor])
 

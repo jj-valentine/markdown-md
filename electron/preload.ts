@@ -35,6 +35,26 @@ const api = {
     ipcRenderer.on('format:demote-heading', handler)
     return () => { ipcRenderer.removeListener('format:demote-heading', handler) }
   },
+  onFormatBold: (callback: () => void) => {
+    const handler = () => callback()
+    ipcRenderer.on('format:bold', handler)
+    return () => { ipcRenderer.removeListener('format:bold', handler) }
+  },
+  onFormatItalic: (callback: () => void) => {
+    const handler = () => callback()
+    ipcRenderer.on('format:italic', handler)
+    return () => { ipcRenderer.removeListener('format:italic', handler) }
+  },
+  onFormatStrike: (callback: () => void) => {
+    const handler = () => callback()
+    ipcRenderer.on('format:strike', handler)
+    return () => { ipcRenderer.removeListener('format:strike', handler) }
+  },
+  onFormatCode: (callback: () => void) => {
+    const handler = () => callback()
+    ipcRenderer.on('format:code', handler)
+    return () => { ipcRenderer.removeListener('format:code', handler) }
+  },
 
   // Close guard — main asks if dirty, renderer replies
   onQueryDirty: (callback: () => void) => {
