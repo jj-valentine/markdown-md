@@ -24,27 +24,63 @@ export function useFileIO(getContent: () => string, setContent: (content: string
   }, [])
 
   const open = useCallback(async () => {
-    const result = await fileIO.open()
-    if (!result) return
+    try {
+      const result = await fileIO.open()
+      if (!result || 'error' in result) return
 
-    setContent(result.content)
-    const name = result.filePath.split('/').pop() || result.filePath
-    setFileState({
-      filePath: result.filePath,
-      fileName: name,
-      isDirty: false,
-      lastSaved: null
-    })
+      setContent(result.content)
+      const name = result.filePath.split('/').pop() || result.filePath
+      setFileState({
+        filePath: result.filePath,
+        fileName: name,
+        isDirty: false,
+        lastSaved: null
+      })
+    } catch (err) {
+      console.error('[file:open]', err)
+    }
   }, [setContent])
 
   const save = useCallback(async () => {
-    const content = getContent()
-    const path = filePathRef.current
+    try {
+      const content = getContent()
+      if (!content && filePathRef.current) {
+        console.warn('[file:save] refusing to overwrite file with empty content')
+        return
+      }
+      const path = filePathRef.current
 
-    if (!path) {
-      // No file path yet — save as
+      if (!path) {
+        const result = await fileIO.saveAs(content)
+        if (!result || 'error' in result) return
+        const name = result.filePath.split('/').pop() || result.filePath
+        setFileState(prev => ({
+          ...prev,
+          filePath: result.filePath,
+          fileName: name,
+          isDirty: false,
+          lastSaved: new Date()
+        }))
+        return
+      }
+
+      const result = await fileIO.save(path, content)
+      if ('error' in result) {
+        console.error('[file:save]', result.error)
+        return
+      }
+      setFileState(prev => ({ ...prev, isDirty: false, lastSaved: new Date() }))
+    } catch (err) {
+      console.error('[file:save]', err)
+    }
+  }, [getContent])
+
+  const saveAs = useCallback(async () => {
+    try {
+      const content = getContent()
       const result = await fileIO.saveAs(content)
-      if (!result) return
+      if (!result || 'error' in result) return
+
       const name = result.filePath.split('/').pop() || result.filePath
       setFileState(prev => ({
         ...prev,
@@ -53,26 +89,9 @@ export function useFileIO(getContent: () => string, setContent: (content: string
         isDirty: false,
         lastSaved: new Date()
       }))
-      return
+    } catch (err) {
+      console.error('[file:saveAs]', err)
     }
-
-    await fileIO.save(path, content)
-    setFileState(prev => ({ ...prev, isDirty: false, lastSaved: new Date() }))
-  }, [getContent])
-
-  const saveAs = useCallback(async () => {
-    const content = getContent()
-    const result = await fileIO.saveAs(content)
-    if (!result) return
-
-    const name = result.filePath.split('/').pop() || result.filePath
-    setFileState(prev => ({
-      ...prev,
-      filePath: result.filePath,
-      fileName: name,
-      isDirty: false,
-      lastSaved: new Date()
-    }))
   }, [getContent])
 
   // Listen for native menu events (Electron)

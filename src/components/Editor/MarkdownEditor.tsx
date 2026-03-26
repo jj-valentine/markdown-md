@@ -1,4 +1,4 @@
-import { useRef, useCallback, useEffect } from 'react'
+import { useRef, useCallback, useEffect, useState } from 'react'
 import TiptapEditor, { type TiptapEditorHandle } from './TiptapEditor'
 import { useFileIO } from '../../hooks/useFileIO'
 import { useEditorStore } from '../../stores/editor-store'
@@ -33,14 +33,17 @@ export default function MarkdownEditor() {
     if (file.lastSaved) store.setSaved()
   }, [file.lastSaved])
 
-  // Restore from autosave on mount
+  // Restore from autosave — deferred until editor ref is available
+  const [restored, setRestored] = useState(false)
   useEffect(() => {
+    if (restored || !editorRef.current) return
     const saved = getAutosave()
     if (saved) {
       setContent(saved.content)
       store.setDirty(true)
     }
-  }, [])
+    setRestored(true)
+  })
 
   // Clear autosave on explicit save
   useEffect(() => {

@@ -21,11 +21,13 @@ function webOpen(): Promise<{ filePath: string; content: string } | null> {
     const input = document.createElement('input')
     input.type = 'file'
     input.accept = '.md,.markdown,.mdx,.txt'
+    input.addEventListener('cancel', () => resolve(null))
     input.onchange = () => {
       const file = input.files?.[0]
       if (!file) return resolve(null)
       const reader = new FileReader()
       reader.onload = () => resolve({ filePath: file.name, content: reader.result as string })
+      reader.onerror = () => resolve(null)
       reader.readAsText(file)
     }
     input.click()

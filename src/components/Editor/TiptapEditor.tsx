@@ -33,6 +33,8 @@ const TiptapEditor = forwardRef<TiptapEditorHandle, TiptapEditorProps>(
   function TiptapEditor({ onUpdate }, ref) {
     const [badge, setBadge] = useState<BadgeState>({ label: '', x: 0, y: 0, visible: false })
     const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+    const onUpdateRef = useRef(onUpdate)
+    onUpdateRef.current = onUpdate
 
     const editor = useEditor({
       extensions: [
@@ -47,7 +49,7 @@ const TiptapEditor = forwardRef<TiptapEditorHandle, TiptapEditorProps>(
         })
       ],
       content: '',
-      onUpdate: () => onUpdate?.(),
+      onUpdate: () => onUpdateRef.current?.(),
       editorProps: {
         attributes: {
           class: 'tiptap'
@@ -95,17 +97,22 @@ const TiptapEditor = forwardRef<TiptapEditorHandle, TiptapEditorProps>(
 
     const setMarkdown = useCallback((content: string) => {
       if (!editor) return
-      // Parse markdown to JSON, then create a fresh ProseMirror state.
-      // This avoids setContent's doc-in-doc nesting bug (corrupts heading attrs)
-      // and gives us a clean undo history — the loaded file becomes the baseline.
-      const json = (editor as any).markdown.parse(content)
-      const doc = editor.schema.nodeFromJSON(json)
-      const newState = EditorState.create({
-        doc,
-        schema: editor.schema,
-        plugins: editor.view.state.plugins,
-      })
-      editor.view.updateState(newState)
+      try {
+        // Parse markdown to JSON, then create a fresh ProseMirror state.
+        // This avoids setContent's doc-in-doc nesting bug (corrupts heading attrs)
+        // and gives us a clean undo history — the loaded file becomes the baseline.
+        const json = (editor as any).markdown.parse(content)
+        const doc = editor.schema.nodeFromJSON(json)
+        const newState = EditorState.create({
+          doc,
+          schema: editor.schema,
+          plugins: editor.view.state.plugins,
+        })
+        editor.view.updateState(newState)
+      } catch (err) {
+        console.error('[setMarkdown] failed to parse content, falling back to plain text:', err)
+        editor.commands.setContent(`<p>${content}</p>`)
+      }
     }, [editor])
 
     // Semantic order: H1 > H2 > H3 > H4 > H5 > H6 > P

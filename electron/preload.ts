@@ -40,12 +40,8 @@ const api = {
 export type Api = typeof api
 
 if (process.contextIsolated) {
-  try {
-    contextBridge.exposeInMainWorld('electron', electronAPI)
-    contextBridge.exposeInMainWorld('api', api)
-  } catch (error) {
-    console.error(error)
-  }
+  contextBridge.exposeInMainWorld('electron', electronAPI)
+  contextBridge.exposeInMainWorld('api', api)
 } else {
   // @ts-expect-error fallback for non-isolated context
   window.electron = electronAPI
