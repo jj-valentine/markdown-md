@@ -20,6 +20,8 @@ interface ElectronApi {
   onMenuSaveAs: (callback: () => void) => () => void
   onPromoteHeading: (callback: () => void) => () => void
   onDemoteHeading: (callback: () => void) => () => void
+  onQueryDirty: (callback: () => void) => () => void
+  replyDirty: (isDirty: boolean) => void
 }
 
 declare global {

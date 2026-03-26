@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, shell } from 'electron'
+import { app, BrowserWindow, dialog, Menu, shell } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { registerFileHandlers } from './ipc-handlers'
@@ -30,6 +30,12 @@ function createWindow(): BrowserWindow {
         win.webContents.send('format:demote-heading')
       }
     }
+  })
+
+  // Prompt before closing with unsaved changes
+  win.on('close', (e) => {
+    e.preventDefault()
+    win.webContents.send('query:is-dirty')
   })
 
   // Open external links in browser
@@ -126,6 +132,38 @@ app.whenReady().then(() => {
   })
 
   registerFileHandlers()
+
+  // Handle dirty-state response from renderer for close guard
+  const { ipcMain } = require('electron')
+  ipcMain.on('reply:is-dirty', (_event: Electron.IpcMainEvent, isDirty: boolean) => {
+    const win = BrowserWindow.getFocusedWindow()
+    if (!win) return
+
+    if (!isDirty) {
+      win.destroy()
+      return
+    }
+
+    const choice = dialog.showMessageBoxSync(win, {
+      type: 'question',
+      buttons: ['Save', "Don't Save", 'Cancel'],
+      defaultId: 0,
+      cancelId: 2,
+      message: 'You have unsaved changes.',
+      detail: 'Do you want to save before closing?'
+    })
+
+    if (choice === 0) {
+      // Save then close — tell renderer to save, it will send close-confirmed after
+      win.webContents.send('menu:save')
+      // Close after a brief delay to let save complete
+      setTimeout(() => win.destroy(), 500)
+    } else if (choice === 1) {
+      win.destroy()
+    }
+    // choice === 2 (Cancel): do nothing, keep window open
+  })
+
   buildMenu()
   createWindow()
 

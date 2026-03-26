@@ -18,6 +18,8 @@ export function useFileIO(getContent: () => string, setContent: (content: string
 
   const filePathRef = useRef<string | null>(null)
   filePathRef.current = fileState.filePath
+  const isDirtyRef = useRef(false)
+  isDirtyRef.current = fileState.isDirty
 
   const markDirty = useCallback(() => {
     setFileState(prev => prev.isDirty ? prev : { ...prev, isDirty: true })
@@ -90,13 +92,14 @@ export function useFileIO(getContent: () => string, setContent: (content: string
     }
   }, [getContent])
 
-  // Listen for native menu events (Electron)
+  // Listen for native menu events and close guard (Electron)
   useEffect(() => {
     if (!window.api) return
     const cleanups = [
       window.api.onMenuOpen(open),
       window.api.onMenuSave(save),
-      window.api.onMenuSaveAs(saveAs)
+      window.api.onMenuSaveAs(saveAs),
+      window.api.onQueryDirty(() => window.api!.replyDirty(isDirtyRef.current))
     ]
     return () => cleanups.forEach(fn => fn())
   }, [open, save, saveAs])

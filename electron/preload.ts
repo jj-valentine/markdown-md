@@ -34,7 +34,15 @@ const api = {
     const handler = () => callback()
     ipcRenderer.on('format:demote-heading', handler)
     return () => { ipcRenderer.removeListener('format:demote-heading', handler) }
-  }
+  },
+
+  // Close guard — main asks if dirty, renderer replies
+  onQueryDirty: (callback: () => void) => {
+    const handler = () => callback()
+    ipcRenderer.on('query:is-dirty', handler)
+    return () => { ipcRenderer.removeListener('query:is-dirty', handler) }
+  },
+  replyDirty: (isDirty: boolean) => ipcRenderer.send('reply:is-dirty', isDirty)
 }
 
 export type Api = typeof api

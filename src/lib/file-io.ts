@@ -34,19 +34,24 @@ function webOpen(): Promise<{ filePath: string; content: string } | null> {
   })
 }
 
-function webSave(_filePath: string, content: string): Promise<{ filePath: string }> {
-  return webSaveAs(content) as Promise<{ filePath: string }>
+let lastWebFileName = 'document.md'
+
+function webSave(filePath: string, content: string): Promise<{ filePath: string }> {
+  const fileName = filePath.split(/[/\\]/).pop() || lastWebFileName
+  return webSaveAs(content, fileName)
 }
 
-function webSaveAs(content: string): Promise<{ filePath: string }> {
+function webSaveAs(content: string, fileName?: string): Promise<{ filePath: string }> {
+  const name = fileName || lastWebFileName
   const blob = new Blob([content], { type: 'text/markdown' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = 'document.md'
+  a.download = name
   a.click()
   URL.revokeObjectURL(url)
-  return Promise.resolve({ filePath: 'document.md' })
+  lastWebFileName = name
+  return Promise.resolve({ filePath: name })
 }
 
 // --- Unified adapter ---
