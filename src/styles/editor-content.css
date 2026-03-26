@@ -107,7 +107,7 @@
 /* Code blocks */
 .tiptap pre {
   background: var(--surface-container-lowest);
-  border: 1px solid rgba(73, 72, 71, 0.15);
+  border: 1px solid rgba(74, 74, 74, 0.15);
   border-radius: var(--radius-md);
   padding: var(--space-4);
   margin: 1em 0;
