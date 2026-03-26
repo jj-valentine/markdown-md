@@ -1,81 +1,104 @@
-html, body, #root {
-  height: 100%;
-}
-
-body {
-  font-family: var(--font-ui);
-  font-size: 14px;
-  color: var(--fg);
-  background: var(--bg);
-}
-
+/* App shell: topbar, sidebar, main content, status bar */
 .app-shell {
+  display: grid;
+  grid-template-rows: var(--topbar-height) 1fr var(--statusbar-height);
+  grid-template-columns: var(--sidebar-width) 1fr;
+  grid-template-areas:
+    "topbar  topbar"
+    "sidebar main"
+    "status  status";
+  height: 100vh;
+}
+
+/* Top bar */
+.topbar {
+  grid-area: topbar;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0 var(--space-4);
+  background: var(--surface-container-low);
+  border-bottom: 1px solid rgba(73, 72, 71, 0.15);
+  /* macOS traffic lights offset */
+  padding-left: 80px;
+}
+
+.topbar-title {
+  font-size: 13px;
+  font-weight: var(--font-weight-medium);
+  color: var(--on-surface-variant);
+  flex: 1;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Left sidebar */
+.sidebar {
+  grid-area: sidebar;
   display: flex;
   flex-direction: column;
-  height: 100%;
-}
-
-.toolbar {
-  height: var(--toolbar-height);
-  border-bottom: 1px solid var(--border);
-  display: flex;
   align-items: center;
-  padding: 0 12px;
-  gap: 2px;
-  background: var(--bg);
-  flex-shrink: 0;
+  padding: var(--space-2) 0;
+  gap: var(--space-1);
+  background: var(--surface-container-lowest);
+  border-right: 1px solid rgba(73, 72, 71, 0.15);
 }
 
-.toolbar-group {
-  display: flex;
-  align-items: center;
-  gap: 1px;
-}
-
-.toolbar-separator {
-  width: 1px;
-  height: 20px;
-  background: var(--border);
-  margin: 0 8px;
-}
-
-.toolbar-button {
+.sidebar-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
-  border-radius: var(--radius-sm);
-  color: var(--fg-muted);
-  transition: color 0.1s, background 0.1s;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  color: var(--on-surface-variant);
+  transition: background var(--transition-fast), color var(--transition-fast);
 }
 
-.toolbar-button:hover {
-  color: var(--fg);
-  background: var(--bg-subtle);
+.sidebar-btn:hover {
+  background: var(--surface-container-high);
+  color: var(--on-surface);
 }
 
-.toolbar-button.active {
-  color: var(--accent);
-  background: var(--bg-subtle);
+.sidebar-btn.active {
+  color: var(--primary);
+  background: rgba(163, 166, 255, 0.1);
 }
 
-.editor-area {
+.sidebar-spacer {
   flex: 1;
-  overflow-y: auto;
-  display: flex;
-  justify-content: center;
 }
 
-.status-bar {
-  height: var(--statusbar-height);
-  border-top: 1px solid var(--border);
+/* Main content area */
+.main-content {
+  grid-area: main;
+  overflow-y: auto;
+  background: var(--surface);
+}
+
+/* Status bar */
+.statusbar {
+  grid-area: status;
   display: flex;
   align-items: center;
-  padding: 0 16px;
+  padding: 0 var(--space-4);
+  gap: var(--space-4);
+  background: var(--surface-container-low);
+  border-top: 1px solid rgba(73, 72, 71, 0.15);
   font-size: 11px;
-  color: var(--fg-faint);
-  background: var(--bg);
-  flex-shrink: 0;
-  gap: 16px;
+  color: var(--on-surface-variant);
+}
+
+.statusbar-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.statusbar-spacer {
+  flex: 1;
 }
