@@ -5,10 +5,22 @@ import { Markdown } from '@tiptap/markdown'
 import { EditorState } from '@tiptap/pm/state'
 import { forwardRef, useImperativeHandle, useCallback, useEffect, useState, useRef } from 'react'
 import type { Level } from '@tiptap/extension-heading'
+import Highlight from '@tiptap/extension-highlight'
+import TaskList from '@tiptap/extension-task-list'
+import TaskItem from '@tiptap/extension-task-item'
+import { Table, TableRow, TableCell, TableHeader } from '@tiptap/extension-table'
+import Link from '@tiptap/extension-link'
+import Image from '@tiptap/extension-image'
+import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight'
+import Typography from '@tiptap/extension-typography'
+import { common, createLowlight } from 'lowlight'
+
+const lowlight = createLowlight(common)
 
 export interface TiptapEditorHandle {
   getMarkdown: () => string
   setMarkdown: (content: string) => void
+  editor: ReturnType<typeof useEditor>
 }
 
 interface TiptapEditorProps {
@@ -38,7 +50,9 @@ const TiptapEditor = forwardRef<TiptapEditorHandle, TiptapEditorProps>(
 
     const editor = useEditor({
       extensions: [
-        StarterKit,
+        StarterKit.configure({
+          codeBlock: false, // replaced by CodeBlockLowlight
+        }),
         Placeholder.configure({
           placeholder: 'Start writing...'
         }),
@@ -46,7 +60,21 @@ const TiptapEditor = forwardRef<TiptapEditorHandle, TiptapEditorProps>(
           html: false,
           transformPastedText: true,
           transformCopiedText: true
-        })
+        }),
+        Highlight,
+        TaskList,
+        TaskItem.configure({ nested: true }),
+        Table.configure({ resizable: false }),
+        TableRow,
+        TableCell,
+        TableHeader,
+        Link.configure({
+          openOnClick: false,
+          HTMLAttributes: { rel: 'noopener noreferrer', target: '_blank' }
+        }),
+        Image,
+        CodeBlockLowlight.configure({ lowlight }),
+        Typography,
       ],
       content: '',
       onUpdate: () => onUpdateRef.current?.(),
@@ -161,7 +189,7 @@ const TiptapEditor = forwardRef<TiptapEditorHandle, TiptapEditorProps>(
       return () => cleanups.forEach(fn => fn())
     }, [promoteHeading, demoteHeading])
 
-    useImperativeHandle(ref, () => ({ getMarkdown, setMarkdown }), [getMarkdown, setMarkdown])
+    useImperativeHandle(ref, () => ({ getMarkdown, setMarkdown, editor }), [getMarkdown, setMarkdown, editor])
 
     return (
       <div className="editor-wrapper">
