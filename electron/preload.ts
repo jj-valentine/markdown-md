@@ -43,7 +43,8 @@ const api = {
     return () => { ipcRenderer.removeListener('query:is-dirty', handler) }
   },
   replyDirty: (isDirty: boolean) => ipcRenderer.send('reply:is-dirty', isDirty),
-  notifySaveComplete: () => ipcRenderer.send('save-complete')
+  notifySaveComplete: () => ipcRenderer.send('save-complete'),
+  notifySaveFailed: (error: string) => ipcRenderer.send('save-failed', error)
 }
 
 export type Api = typeof api

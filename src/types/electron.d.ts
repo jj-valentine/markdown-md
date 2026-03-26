@@ -23,6 +23,7 @@ interface ElectronApi {
   onQueryDirty: (callback: () => void) => () => void
   replyDirty: (isDirty: boolean) => void
   notifySaveComplete: () => void
+  notifySaveFailed: (error: string) => void
 }
 
 declare global {

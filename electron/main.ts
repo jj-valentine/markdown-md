@@ -181,6 +181,18 @@ app.whenReady().then(() => {
     }
   })
 
+  ipcMain.on('save-failed', (event: Electron.IpcMainEvent, error: string) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    if (!win) return
+    pendingClose.delete(win.id)
+    dialog.showMessageBoxSync(win, {
+      type: 'error',
+      buttons: ['OK'],
+      message: 'Save failed',
+      detail: error || 'The file could not be saved.'
+    })
+  })
+
   buildMenu()
   createWindow()
 

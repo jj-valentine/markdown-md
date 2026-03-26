@@ -50,7 +50,10 @@ export function useFileIO(getContent: () => string, setContent: (content: string
 
       if (!path) {
         const result = await fileIO.saveAs(content)
-        if (!result || 'error' in result) return
+        if (!result || 'error' in result) {
+          if (result && 'error' in result) window.api?.notifySaveFailed(result.error)
+          return
+        }
         const name = result.filePath.split(/[/\\]/).pop() || result.filePath
         setFileState(prev => ({
           ...prev,
@@ -66,12 +69,14 @@ export function useFileIO(getContent: () => string, setContent: (content: string
       const result = await fileIO.save(path, content)
       if ('error' in result) {
         console.error('[file:save]', result.error)
+        window.api?.notifySaveFailed(result.error)
         return
       }
       setFileState(prev => ({ ...prev, isDirty: false, lastSaved: new Date() }))
       window.api?.notifySaveComplete()
     } catch (err) {
       console.error('[file:save]', err)
+      window.api?.notifySaveFailed(err instanceof Error ? err.message : 'Unknown error')
     }
   }, [getContent])
 
