@@ -2,6 +2,7 @@ import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
 import { Markdown } from '@tiptap/markdown'
+import { EditorState } from '@tiptap/pm/state'
 import { forwardRef, useImperativeHandle, useCallback, useEffect, useState, useRef } from 'react'
 import type { Level } from '@tiptap/extension-heading'
 
@@ -94,12 +95,22 @@ const TiptapEditor = forwardRef<TiptapEditorHandle, TiptapEditorProps>(
 
     const setMarkdown = useCallback((content: string) => {
       if (!editor) return
-      const parsed = (editor as any).markdown.parse(content)
-      editor.commands.setContent(parsed)
-      // Clear undo history so Ctrl+Z doesn't revert past the file load
-      editor.commands.clearHistory()
+      // Parse markdown to JSON, then create a fresh ProseMirror state.
+      // This avoids setContent's doc-in-doc nesting bug (corrupts heading attrs)
+      // and gives us a clean undo history — the loaded file becomes the baseline.
+      const json = (editor as any).markdown.parse(content)
+      const doc = editor.schema.nodeFromJSON(json)
+      const newState = EditorState.create({
+        doc,
+        schema: editor.schema,
+        plugins: editor.view.state.plugins,
+      })
+      editor.view.updateState(newState)
     }, [editor])
 
+    // Semantic order: H1 > H2 > H3 > H4 > H5 > H6 > P
+    // Promote = move up (P→H6, H6→H5, ..., H1 stays)
+    // Demote  = move down (H1→H2, ..., H6→P, P stays)
     const promoteHeading = useCallback(() => {
       if (!editor) return
       const current = getCurrentLevel(editor)
