@@ -10,7 +10,14 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+out
 *.local
+
+# Stitch design reference files
+.stitch/
+
+# Electron build output
+release/
 
 # Editor directories and files
 .vscode/*
