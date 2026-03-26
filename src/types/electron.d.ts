@@ -22,6 +22,7 @@ interface ElectronApi {
   onDemoteHeading: (callback: () => void) => () => void
   onQueryDirty: (callback: () => void) => () => void
   replyDirty: (isDirty: boolean) => void
+  notifySaveComplete: () => void
 }
 
 declare global {

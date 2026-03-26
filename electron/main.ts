@@ -135,8 +135,12 @@ app.whenReady().then(() => {
 
   // Handle dirty-state response from renderer for close guard
   const { ipcMain } = require('electron')
-  ipcMain.on('reply:is-dirty', (_event: Electron.IpcMainEvent, isDirty: boolean) => {
-    const win = BrowserWindow.getFocusedWindow()
+
+  // Track windows that are waiting for a save-then-close
+  const pendingClose = new Set<number>()
+
+  ipcMain.on('reply:is-dirty', (event: Electron.IpcMainEvent, isDirty: boolean) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
     if (!win) return
 
     if (!isDirty) {
@@ -154,14 +158,21 @@ app.whenReady().then(() => {
     })
 
     if (choice === 0) {
-      // Save then close — tell renderer to save, it will send close-confirmed after
+      // Tell renderer to save — it will send 'save-complete' when done
+      pendingClose.add(win.id)
       win.webContents.send('menu:save')
-      // Close after a brief delay to let save complete
-      setTimeout(() => win.destroy(), 500)
     } else if (choice === 1) {
       win.destroy()
     }
     // choice === 2 (Cancel): do nothing, keep window open
+  })
+
+  ipcMain.on('save-complete', (event: Electron.IpcMainEvent) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    if (win && pendingClose.has(win.id)) {
+      pendingClose.delete(win.id)
+      win.destroy()
+    }
   })
 
   buildMenu()

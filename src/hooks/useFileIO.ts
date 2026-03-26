@@ -59,6 +59,7 @@ export function useFileIO(getContent: () => string, setContent: (content: string
           isDirty: false,
           lastSaved: new Date()
         }))
+        window.api?.notifySaveComplete()
         return
       }
 
@@ -68,6 +69,7 @@ export function useFileIO(getContent: () => string, setContent: (content: string
         return
       }
       setFileState(prev => ({ ...prev, isDirty: false, lastSaved: new Date() }))
+      window.api?.notifySaveComplete()
     } catch (err) {
       console.error('[file:save]', err)
     }

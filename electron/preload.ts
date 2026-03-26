@@ -42,7 +42,8 @@ const api = {
     ipcRenderer.on('query:is-dirty', handler)
     return () => { ipcRenderer.removeListener('query:is-dirty', handler) }
   },
-  replyDirty: (isDirty: boolean) => ipcRenderer.send('reply:is-dirty', isDirty)
+  replyDirty: (isDirty: boolean) => ipcRenderer.send('reply:is-dirty', isDirty),
+  notifySaveComplete: () => ipcRenderer.send('save-complete')
 }
 
 export type Api = typeof api
