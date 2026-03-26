@@ -4,7 +4,11 @@ import { useFileIO } from '../../hooks/useFileIO'
 import { useEditorStore } from '../../stores/editor-store'
 import { scheduleAutosave, getAutosave, clearAutosave } from '../../lib/autosave'
 
-export default function MarkdownEditor() {
+interface MarkdownEditorProps {
+  onEditorReady?: (handle: TiptapEditorHandle) => void
+}
+
+export default function MarkdownEditor({ onEditorReady }: MarkdownEditorProps) {
   const editorRef = useRef<TiptapEditorHandle>(null)
   const store = useEditorStore()
 
@@ -51,6 +55,13 @@ export default function MarkdownEditor() {
     }, 50)
     return () => clearInterval(id)
   }, [editorReady])
+
+  // Notify parent when editor is ready
+  useEffect(() => {
+    if (editorReady && editorRef.current && onEditorReady) {
+      onEditorReady(editorRef.current)
+    }
+  }, [editorReady, onEditorReady])
 
   // Clear autosave when a file is explicitly opened (prevents stale restore on relaunch)
   useEffect(() => {

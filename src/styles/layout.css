@@ -1,13 +1,18 @@
 /* App shell: topbar, sidebar, main content, status bar */
 .app-shell {
   display: grid;
-  grid-template-rows: var(--topbar-height) 1fr var(--statusbar-height);
+  grid-template-rows: var(--topbar-height) auto 1fr var(--statusbar-height);
   grid-template-columns: var(--sidebar-width) 1fr;
   grid-template-areas:
     "topbar  topbar"
+    "sidebar toolbar"
     "sidebar main"
     "status  status";
   height: 100vh;
+}
+
+.toolbar {
+  grid-area: toolbar;
 }
 
 /* Top bar */

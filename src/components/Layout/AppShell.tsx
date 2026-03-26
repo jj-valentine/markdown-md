@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import {
   FileText,
   Clock,
@@ -6,8 +7,10 @@ import {
   Download
 } from 'lucide-react'
 import MarkdownEditor from '../Editor/MarkdownEditor'
+import Toolbar from '../Toolbar/Toolbar'
 import StatusBar from '../StatusBar/StatusBar'
 import { useEditorStore } from '../../stores/editor-store'
+import type { TiptapEditorHandle } from '../Editor/TiptapEditor'
 
 const ICON_SIZE = 18
 const ICON_STROKE = 1.5
@@ -20,6 +23,7 @@ const sidebarItems = [
 
 export default function AppShell() {
   const { fileName, isDirty } = useEditorStore()
+  const [editorHandle, setEditorHandle] = useState<TiptapEditorHandle | null>(null)
 
   return (
     <div className="app-shell">
@@ -50,8 +54,11 @@ export default function AppShell() {
         </button>
       </nav>
 
+      {/* Toolbar */}
+      <Toolbar editor={editorHandle?.editor ?? null} />
+
       {/* Editor */}
-      <MarkdownEditor />
+      <MarkdownEditor onEditorReady={setEditorHandle} />
 
       {/* Status bar */}
       <StatusBar />
