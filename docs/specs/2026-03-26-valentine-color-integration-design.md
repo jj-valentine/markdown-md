@@ -82,6 +82,15 @@ Note: comments at `#535353` may need adjustment — flagged for review once code
 | `#60aef0` | iTerm underline | Covered by `--info` |
 | `#373737` | iTerm selected text | Covered by surface scale |
 
+## Reserved Colors
+
+Kept for future use — not assigned to tokens yet but too good to drop.
+
+| Hex | Origin | Potential Role |
+|-----|--------|----------------|
+| `#a70138` | Stitch error-container | Deep crimson — destructive action fills, error container backgrounds |
+| `#d4c9ff` | Stitch on-secondary-container | Soft lavender — annotation backgrounds, highlight variants, light accents |
+
 ## Tokens Dropped
 
 These Stitch tokens have no valentine equivalent and are removed:
@@ -92,8 +101,6 @@ These Stitch tokens have no valentine equivalent and are removed:
 | `--on-primary` | `#0f00a4` | Unused — dark-on-primary not needed in dark theme |
 | `--on-primary-container` | `#0a0081` | Dropped with container |
 | `--secondary-container` | `#49339d` | Replaced by `--secondary` + opacity |
-| `--on-secondary-container` | `#d4c9ff` | Dropped with container |
-| `--error-container` | `#a70138` | Replaced by `--error` + opacity |
 
 ## New Tokens Added
 
