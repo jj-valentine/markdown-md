@@ -41,8 +41,8 @@ a {
 }
 
 ::selection {
-  background: var(--primary-container);
-  color: var(--on-primary-container);
+  background: rgba(121, 128, 255, 0.3);
+  color: var(--on-surface);
 }
 
 /* Electron: drag region for titlebar */

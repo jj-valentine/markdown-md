@@ -1,5 +1,6 @@
-import { useRef, useCallback, useEffect, useState } from 'react'
+import { useRef, useCallback, useEffect, useState, type RefObject } from 'react'
 import TiptapEditor, { type TiptapEditorHandle } from './TiptapEditor'
+import TableControls from './TableControls'
 import { useFileIO } from '../../hooks/useFileIO'
 import { useEditorStore } from '../../stores/editor-store'
 import { scheduleAutosave, getAutosave, clearAutosave } from '../../lib/autosave'
@@ -76,18 +77,47 @@ export default function MarkdownEditor({ onEditorReady }: MarkdownEditorProps) {
   const handleUpdate = useCallback(() => {
     file.markDirty()
 
-    // Update word count
-    const text = editorRef.current?.getMarkdown() ?? ''
-    const words = text.trim().split(/\s+/).filter(Boolean).length
-    store.setWordCount(words)
-
-    // Schedule autosave
-    scheduleAutosave(text, file.fileName, file.filePath)
+    // Update word count + autosave — wrapped in try-catch because getMarkdown()
+    // can throw if the document contains nodes the serializer can't handle mid-transaction
+    try {
+      const text = editorRef.current?.getMarkdown() ?? ''
+      const words = text.trim().split(/\s+/).filter(Boolean).length
+      store.setWordCount(words)
+      scheduleAutosave(text, file.fileName, file.filePath)
+    } catch (err) {
+      console.warn('[handleUpdate] getMarkdown failed:', err)
+    }
   }, [file.markDirty, file.fileName, file.filePath, store.setWordCount])
 
+  // Scrollbar fade: show on scroll/hover, hide after 1.2s idle
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const scrollTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const showScrollbar = useCallback(() => {
+    scrollRef.current?.classList.add('scrollbar-visible')
+    if (scrollTimer.current) clearTimeout(scrollTimer.current)
+    scrollTimer.current = setTimeout(() => {
+      scrollRef.current?.classList.remove('scrollbar-visible')
+    }, 1200)
+  }, [])
+
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+    el.addEventListener('scroll', showScrollbar, { passive: true })
+    el.addEventListener('mouseenter', showScrollbar)
+    return () => {
+      el.removeEventListener('scroll', showScrollbar)
+      el.removeEventListener('mouseenter', showScrollbar)
+    }
+  }, [showScrollbar])
+
   return (
-    <div className="main-content">
+    <div className="main-content" ref={scrollRef}>
       <TiptapEditor ref={editorRef} onUpdate={handleUpdate} />
+      {editorReady && editorRef.current?.editor && (
+        <TableControls editor={editorRef.current.editor} />
+      )}
     </div>
   )
 }

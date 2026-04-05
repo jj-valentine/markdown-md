@@ -13,9 +13,72 @@ import Link from '@tiptap/extension-link'
 import Image from '@tiptap/extension-image'
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight'
 import Typography from '@tiptap/extension-typography'
+import { Extension } from '@tiptap/core'
 import { common, createLowlight } from 'lowlight'
 
 const lowlight = createLowlight(common)
+
+const ListTabIndent = Extension.create({
+  name: 'listTabIndent',
+  addKeyboardShortcuts() {
+    return {
+      'Tab': ({ editor }) => {
+        if (editor.isActive('listItem') || editor.isActive('taskItem')) {
+          return editor.chain().sinkListItem('listItem').run()
+            || editor.chain().sinkListItem('taskItem').run()
+        }
+        return false
+      },
+      'Shift-Tab': ({ editor }) => {
+        if (editor.isActive('listItem') || editor.isActive('taskItem')) {
+          return editor.chain().liftListItem('listItem').run()
+            || editor.chain().liftListItem('taskItem').run()
+        }
+        return false
+      },
+    }
+  },
+})
+
+// Renderer-side keyboard shortcuts — primary input path when editor is focused.
+// Shortcuts that macOS/Chromium intercept (headings ⌥⇧, lists ⌘⇧-/+/0, zoom ⌘=/-) are
+// handled by before-input-event in main.ts instead. This extension covers the rest
+// and serves as web-mode fallback for all shortcuts.
+const FormatShortcuts = Extension.create({
+  name: 'formatShortcuts',
+  addKeyboardShortcuts() {
+    return {
+      // Headings: ⌥⇧1-6, ⌥⇧P (web fallback — Electron uses before-input-event)
+      'Alt-Shift-1': ({ editor }) => editor.commands.setHeading({ level: 1 }),
+      'Alt-Shift-2': ({ editor }) => editor.commands.setHeading({ level: 2 }),
+      'Alt-Shift-3': ({ editor }) => editor.commands.setHeading({ level: 3 }),
+      'Alt-Shift-4': ({ editor }) => editor.commands.setHeading({ level: 4 }),
+      'Alt-Shift-5': ({ editor }) => editor.commands.setHeading({ level: 5 }),
+      'Alt-Shift-6': ({ editor }) => editor.commands.setHeading({ level: 6 }),
+      'Alt-Shift-p': ({ editor }) => editor.commands.setParagraph(),
+      // Strikethrough: ⌘⇧X (explicit — StarterKit has Mod-Shift-x but menu may swallow it)
+      'Mod-Shift-x': ({ editor }) => editor.commands.toggleStrike(),
+      // Highlight: ⌘⇧C
+      'Mod-Shift-c': ({ editor }) => editor.commands.toggleHighlight(),
+      // Blockquote: ⌘⇧B
+      'Mod-Shift-b': ({ editor }) => editor.commands.toggleBlockquote(),
+      // Code Block: ⌘⇧E
+      'Mod-Shift-e': ({ editor }) => editor.commands.toggleCodeBlock(),
+      // Table: ⌘⇧T (insert default 3×3)
+      'Mod-Shift-t': ({ editor }) => editor.commands.insertTable({ rows: 3, cols: 3, withHeaderRow: true }),
+      // Image: ⌘⇧I — dispatches event for Toolbar to open image URL input
+      'Mod-Shift-i': () => {
+        window.dispatchEvent(new CustomEvent('toolbar:open-image-input'))
+        return true
+      },
+      // Link: ⌘K — dispatches event for Toolbar to open URL input
+      'Mod-k': () => {
+        window.dispatchEvent(new CustomEvent('toolbar:open-link-input'))
+        return true
+      },
+    }
+  },
+})
 
 export interface TiptapEditorHandle {
   getMarkdown: () => string
@@ -75,6 +138,8 @@ const TiptapEditor = forwardRef<TiptapEditorHandle, TiptapEditorProps>(
         Image,
         CodeBlockLowlight.configure({ lowlight }),
         Typography,
+        ListTabIndent,
+        FormatShortcuts,
       ],
       content: '',
       onUpdate: () => onUpdateRef.current?.(),
@@ -189,9 +254,25 @@ const TiptapEditor = forwardRef<TiptapEditorHandle, TiptapEditorProps>(
         window.api.onFormatItalic(() => editor.chain().focus().toggleItalic().run()),
         window.api.onFormatStrike(() => editor.chain().focus().toggleStrike().run()),
         window.api.onFormatCode(() => editor.chain().focus().toggleCode().run()),
+        window.api.onFormatHighlight(() => editor.chain().focus().toggleHighlight().run()),
+        window.api.onSetHeading((level: number) => {
+          if (level === 0) {
+            editor.chain().focus().setParagraph().run()
+            showBadge('P')
+          } else {
+            editor.chain().focus().setHeading({ level: level as Level }).run()
+            showBadge(`H${level}`)
+          }
+        }),
+        window.api.onFormatBulletList(() => editor.chain().focus().toggleBulletList().run()),
+        window.api.onFormatOrderedList(() => editor.chain().focus().toggleOrderedList().run()),
+        window.api.onFormatTaskList(() => editor.chain().focus().toggleTaskList().run()),
+        window.api.onFormatBlockquote(() => editor.chain().focus().toggleBlockquote().run()),
+        window.api.onFormatCodeBlock(() => editor.chain().focus().toggleCodeBlock().run()),
       ]
+      // Note: onFormatLink is handled by Toolbar (opens URL input UI)
       return () => cleanups.forEach(fn => fn())
-    }, [promoteHeading, demoteHeading, editor])
+    }, [promoteHeading, demoteHeading, editor, showBadge])
 
     useImperativeHandle(ref, () => ({ getMarkdown, setMarkdown, editor }), [getMarkdown, setMarkdown, editor])
 

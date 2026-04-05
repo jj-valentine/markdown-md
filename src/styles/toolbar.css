@@ -1,13 +1,19 @@
 /* Toolbar — sits between topbar and editor */
 .toolbar {
   display: flex;
-  align-items: center;
-  gap: var(--space-1);
-  padding: var(--space-1) var(--space-4);
+  justify-content: center;
   background: var(--surface-container-low);
   border-bottom: 1px solid rgba(74, 74, 74, 0.15);
   min-height: 40px;
-  padding-left: var(--space-4);
+  position: relative;
+  z-index: 10;
+}
+
+.toolbar-inner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-4);
 }
 
 .toolbar-group {
@@ -39,6 +45,11 @@
 .toolbar-btn:hover:not(:disabled) {
   background: var(--surface-container-high);
   color: var(--on-surface);
+}
+
+.toolbar-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
 }
 
 .toolbar-btn.active {
@@ -79,7 +90,7 @@
   position: absolute;
   top: calc(100% + 4px);
   left: 0;
-  min-width: 140px;
+  min-width: 200px;
   background: var(--surface-container-highest);
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius-md);
@@ -89,7 +100,9 @@
 }
 
 .heading-dropdown-item {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   width: 100%;
   padding: var(--space-1) var(--space-3);
   text-align: left;
@@ -107,9 +120,28 @@
   color: var(--primary);
 }
 
+.heading-dropdown-shortcut {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--on-surface-variant);
+  opacity: 0.6;
+  margin-left: var(--space-4);
+}
+
 /* Insert menu */
 .insert-menu {
   position: relative;
+}
+
+.insert-menu-expanded .insert-expanded-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.insert-menu-expanded .insert-menu-dropdown {
+  left: auto;
+  right: 0;
 }
 
 .insert-menu-dropdown {
@@ -140,4 +172,202 @@
 .insert-menu-item:hover {
   background: var(--surface-container-high);
   color: var(--on-surface);
+}
+
+.insert-menu-shortcut {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--on-surface-variant);
+  opacity: 0.6;
+}
+
+/* Table size picker */
+.table-size-picker {
+  padding: var(--space-2) var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.table-size-picker-label {
+  font-size: 12px;
+  font-weight: var(--font-weight-medium);
+  color: var(--on-surface-variant);
+}
+
+.table-size-picker-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.table-size-picker-row label {
+  font-size: 12px;
+  color: var(--on-surface-variant);
+  min-width: 32px;
+}
+
+.table-size-picker-input {
+  width: 48px;
+  padding: 2px var(--space-1);
+  background: var(--surface-container-low);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-sm);
+  color: var(--on-surface);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-align: center;
+  outline: none;
+}
+
+.table-size-picker-input:focus {
+  border-color: var(--primary);
+}
+
+.table-size-picker-insert {
+  font-size: 12px;
+  padding: var(--space-1) var(--space-2);
+  background: var(--primary);
+  color: var(--surface);
+  border-radius: var(--radius-md);
+  margin-top: var(--space-1);
+}
+
+.table-size-picker-insert:hover {
+  opacity: 0.85;
+}
+
+/* URL input popover (link, image) */
+.url-input-popover {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 240px;
+  background: var(--surface-container-highest);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3);
+  box-shadow: var(--shadow-float);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.url-input-label {
+  font-size: 12px;
+  font-weight: var(--font-weight-medium);
+  color: var(--on-surface-variant);
+}
+
+.url-input-field {
+  width: 100%;
+  padding: var(--space-1) var(--space-2);
+  background: var(--surface-container-low);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-md);
+  color: var(--on-surface);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  outline: none;
+}
+
+.url-input-field:focus {
+  border-color: var(--primary);
+}
+
+.url-input-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.url-input-btn {
+  font-size: 12px;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-md);
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.url-input-cancel {
+  color: var(--on-surface-variant);
+}
+
+.url-input-cancel:hover {
+  background: var(--surface-container-high);
+  color: var(--on-surface);
+}
+
+.url-input-submit {
+  background: var(--primary);
+  color: var(--surface);
+}
+
+.url-input-submit:hover {
+  opacity: 0.85;
+}
+
+.url-input-remove {
+  color: var(--error);
+}
+
+.url-input-remove:hover {
+  background: rgba(255, 100, 100, 0.1);
+}
+
+.url-input-spacer {
+  flex: 1;
+}
+
+/* Toolbar tooltip — Discord-style, positioned above with arrow */
+.toolbar-btn-wrapper {
+  position: relative;
+}
+
+.toolbar-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #111214;
+  border-radius: 4px;
+  padding: 6px 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  z-index: 200;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 100ms ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.toolbar-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #111214;
+}
+
+.toolbar-tooltip.visible {
+  opacity: 1;
+}
+
+.toolbar-tooltip-label {
+  font-size: 12px;
+  font-weight: var(--font-weight-medium);
+  color: #dcddde;
+  line-height: 1;
+}
+
+.toolbar-tooltip-shortcut {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #72767d;
+  line-height: 1;
 }

@@ -83,6 +83,35 @@
   grid-area: main;
   overflow-y: auto;
   background: var(--surface);
+  position: relative;
+}
+
+/* Sleek scrollbar — fades out when idle */
+.main-content::-webkit-scrollbar {
+  width: 12px;
+}
+
+.main-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.main-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0);
+  border-radius: 6px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+
+.main-content.scrollbar-visible::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+
+.main-content.scrollbar-visible::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.22);
+  border: 3px solid transparent;
+  background-clip: padding-box;
 }
 
 /* Status bar */
