@@ -30,3 +30,13 @@ release/
 *.sln
 *.sw?
 .superpowers/
+
+# Working/continuity files
+HANDOFF.md
+TASKS.todo
+CHANGELOG.md
+
+# Research artifacts
+.firecrawl/
+docs/superpowers/
+test-screenshots/
